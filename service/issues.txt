@@ -1,0 +1,1 @@
+  1: Check all variable assignments. Some variables receive a value but then you don't use them, or you overwrite them before using the value.

@@ -1,0 +1,1381 @@
+openapi: 3.0.3
+info:
+  title: WASAPhoto APIs
+  version: 1.0.5
+  description: >
+    **"Keep in touch with your friends by sharing photos of special moments, thanks to WASAPhoto!"**
+    
+    WASAPhoto is web application based on RESTfull architecture to allows upload your photos directly from your PC, and they will be visible to everyone following you.
+  license:
+    name: GNU General Public License v3.0
+    url: https://www.gnu.org/licenses/gpl-3.0.html
+  
+  contact:
+    name: Andrea Pizzi
+    url: https://github.com/pizzi-andrea/WASAPhoto
+    email: pizzi.1995517@studenti.uniroma1.it
+  
+servers:
+  - url: http://localhost:3000
+    description: main server
+  - url: http://localhost:4000
+    description: debug server
+
+paths:
+  /users/:
+    summary: users
+    description: >
+      this resource rappresent collection of users
+    
+    get:
+      security:
+        - BearerAuth: []
+        
+      tags:
+        - user
+      summary: list registred users
+      description: >
+        this method returns the list of currently registered users.
+        All users are identified by the unique ID (uid) and unique username chosen by the users.
+      parameters: 
+        
+        - $ref: "#/components/parameters/QueryLimit"
+        - $ref: "#/components/parameters/UsernameFilter"
+          
+          
+      operationId: listUsers # used
+      
+      responses:
+        "200":
+          description: >
+            get the list contaning all users current signed
+          content:
+            application/json:
+              schema:
+                description: >
+                  list of users  
+                type: array
+                items: 
+                  $ref: "#/components/schemas/User"
+                minItems: 1
+                maxItems: 300
+             
+                example:
+                  - username: "MarioRoss"
+                    uid: 10
+                  - username: "alux"
+                    uid: 840
+        
+        "204":
+          description: >
+            empty body, found nothing
+        
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+          
+        "500":
+          $ref: "#/components/responses/ServerError"
+          
+  /users/{uid}/:
+    summary:  users
+    description: >
+       Resource rappresent a single user
+       
+    parameters:
+        - $ref: "#/components/parameters/Uid"
+    
+    get:
+      tags:
+        - user
+      summary: get specific user profile
+      description: >
+        give user id and put user profile. User profile is object contain 
+        all information on user, in particular:
+          - information about user
+          - stream photos updated
+          - number of photo have been updated
+          - number of followers
+          - number of following
+      
+      security:
+        - BearerAuth: []
+        
+      operationId: getUserProfile # required - used
+      
+      responses:
+        "200":
+          description: >
+            get user profile corresponding to *uid*
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        
+        "404":
+          $ref: "#/components/responses/UserNotFound"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/UnauthorizedToken"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+    put:
+      tags:
+        - user
+      summary: assign or update username
+      description: >
+        assign username or update old username with new username.
+        The username to set is in the body request
+      
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Username"
+        description: >
+          new username
+        required: true
+      
+      operationId: setMyUserName # required - used
+      
+      security:
+        - BearerAuth: []
+      
+      responses:
+        "204":
+          description: >
+            success, assigned new username
+        
+        "400":
+          $ref: "#/components/responses/BadRequest"
+          
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/UnauthorizedToken"
+        "404":
+          $ref: "#/components/responses/UserNotFound"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /users/{uid}/followers/:
+    summary: user followers
+    description: >
+      this resurce rappresent the followers of specific user
+    parameters:
+      - $ref: "#/components/parameters/Uid"
+    get:
+      security:
+        - BearerAuth: []
+      tags:
+        - user
+        - follower
+      summary: get all followers
+      description: >
+        give a UID return a list contanings all followers user
+      parameters:
+        - $ref: "#/components/parameters/QueryLimit"
+        - $ref: "#/components/parameters/UsernameFilter"
+          
+      operationId: listFollowers # OK - used
+      
+      responses:
+        "200":
+          description: >
+            success, return list of followers
+          content:
+            application/json:
+              schema:
+                description: >
+                  list of followers
+                type: array
+                items: 
+                  $ref: "#/components/schemas/User"
+                minItems: 1
+                maxItems: 1000
+        "404":
+          $ref: "#/components/responses/UserNotFound"
+        
+        "204":
+          description: >
+            empty body, found nothing
+        
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/UnauthorizedToken"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /users/{uid}/followers/{followerId}:
+    summary: a follower
+    description: >
+      this resource rappresent follower
+    parameters:
+      - $ref: "#/components/parameters/Uid"
+      - $ref: "#/components/parameters/FollowerId"
+    delete:
+      tags:
+        - user
+        - follower
+      summary: unfollow user
+      description: >
+        gived uid and *followedId* then remove follower *followerId* from user followers
+      security:
+        - BearerAuth: []
+        
+      operationId: unfollowUser # required - used
+      
+      responses:
+        "204":
+          description: >
+            success , unfollow the user
+        
+        "400":
+          $ref: "#/components/responses/BadRequest"
+          
+        "404":
+          description: >
+            just no follow user or user Id not exist
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/UnauthorizedToken"
+        "500":
+          $ref: "#/components/responses/ServerError"
+    
+    put:
+      tags:
+        - user
+        - follower
+      summary:  follow user
+      description: >
+        give user  and added to  follower of user
+    
+      security:
+        - BearerAuth: []
+      
+      operationId: followUser # required - used
+      
+      responses:
+        "201": 
+          description: >
+            added new follower
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "204":
+          description: >
+            just follow the user
+            
+        "400":
+          $ref: "#/components/responses/BadRequest"
+          
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/UnauthorizedToken"
+        "500":
+          $ref: "#/components/responses/ServerError"
+  
+  /users/{uid}/myStream/:
+    summary: user stream photos
+    description: >
+      this resource rappresent stream of photos associated a user.
+      the photos in the stream are taken by followed users. The user
+      can put like or comment on photos in the stream.
+    
+    parameters:
+        - $ref: "#/components/parameters/Uid"
+
+    get:
+      tags:
+        - photo
+        - stream
+      summary: list personal stream photos 
+      description: >
+        owner user can list its stream
+      
+      parameters:
+        - $ref: "#/components/parameters/QueryLimit"
+        - $ref: "#/components/parameters/UsernameFilter"
+        
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            description: >
+              options for sorting photos
+            type: string
+            enum: ["dataUpdate"]
+            default: "dataUpdate"
+          description: >
+            ordering photo getted by value
+       
+        - name: reverse
+          in: query
+          required: false
+          schema:
+            description: >
+              type value ordering flag
+            type: string
+            enum: ["asc", "desc"]
+            default: "desc"
+          description: >
+            order photo in reverse order
+        
+      security:
+        - BearerAuth: []
+      operationId: getMyStream # required - used
+      
+      responses:
+        "200":
+          description: >
+            success, getted stream photos
+          content:
+            application/json:
+              schema:
+                type: array
+                description: >
+                  List post in stream 
+                items:
+                  $ref: "#/components/schemas/Post"
+                minItems: 0
+                maxItems: 250
+        
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/UserNotFound"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/UnauthorizedToken"
+            
+        "204":
+          description: >
+            empty body, found nothing
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /users/{uid}/banned/{bannedId}:
+    summary: users banned
+    description: >
+      this resource describe banned user
+    
+    parameters:
+      - $ref: "#/components/parameters/Uid"
+      - $ref: "#/components/parameters/BannedId"
+    
+    put:
+      tags:
+        - user
+        - ban
+      summary: ban user identificated by *uid* 
+      description: >
+        taken uid of the user who wants to ban and uid of the user to be banned, 
+        bans the user(BannedID)
+              
+      security:
+        - BearerAuth: []
+      
+      operationId: banUser # required - used
+      
+      responses:
+        "201":
+          description: >
+            success, banned user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        
+        "204":
+          description: >
+            empty response, user just banned
+        "404":
+          $ref: "#/components/responses/UserNotFound"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/UnauthorizedToken"
+        "500":
+          $ref: "#/components/responses/ServerError"
+    
+    delete:
+      tags:
+        - user
+        - ban
+      summary: unban user
+      description: >
+        taken uid of the user who wants unbband id of user banned and delete last one
+      security:
+        - BearerAuth: []
+        
+      operationId: unbanUser # required - used
+      
+      responses:
+        "204":
+          description: >
+            success, unbanned user
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        
+        "404":
+          $ref: "#/components/responses/UserNotFound"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/UnauthorizedToken"
+        "500":
+          $ref: "#/components/responses/ServerError"
+    
+    get:
+      tags:
+        - user
+        - ban
+      summary: check if user had banned other user
+      description: >
+        taken uid of the user who wants check if banned. I if users had banned return it otherwise return empty response
+      security:
+        - BearerAuth: []
+        
+      operationId: isBanned # OK - used
+      
+      responses:
+        "200":
+          description: >
+            success, user banned
+          
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "204":
+          description: >
+            user not banned
+
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        
+        "404":
+          $ref: "#/components/responses/UserNotFound"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/UnauthorizedToken"
+        "500":
+          $ref: "#/components/responses/ServerError"
+    
+  
+  /users/{uid}/myPhotos/: 
+    summary: photo posted by user
+    description: >
+      this resource rappresent the streams of photos update by user in time
+    
+    parameters:
+      - $ref: "#/components/parameters/Uid"
+    
+    post:
+      security:
+        - BearerAuth: []
+        
+      tags:
+        - photo
+      summary: update photo
+      description: >
+        give photo and update it
+        
+      requestBody:
+        description: >
+          photo to update
+        content:
+          multipart/form-data:
+            schema:
+              description: >
+                Object rappresented photo to update and relative metadata
+              type: object
+              properties:
+                img:
+                  type: string
+                  format: binary
+                  description: >
+                    image to update
+                  minLength: 0
+                  maxLength: 35000000
+                desc:
+                  description: >
+                    description on image
+                  type: string
+                  example: "a good photo!"
+                  minLength: 1
+                  maxLength: 250
+                  pattern: "^.*?$"
+      
+      operationId: uploadPhoto # required - used
+      
+      responses:
+        "201":
+          description: >
+            success, update photo
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/Post"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        
+        "404":
+          $ref: "#/components/responses/UserNotFound"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/UnauthorizedToken"
+        "500":
+          $ref: "#/components/responses/ServerError"
+    
+    get:
+      security:
+        - BearerAuth: []
+      tags:
+        - photo
+      summary: list stream photos updated
+      description: >
+        given *uid* get all photo has updated
+      
+      parameters:
+        - $ref: "#/components/parameters/QueryLimit"
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            description: >
+              options for sorting photos
+            type: string
+            enum: ["dataUpdate"]   # future updates [, "size", "likes", "comments"]
+            default: "dataUpdate"
+          description: >
+            ordering photo getted by value in enum
+        - name: reverse
+          in: query
+          required: false
+          schema:
+            description: >
+              flag for reverse sorting
+            type: string
+            enum: ["asc", "desc"]
+            default: "desc"
+
+      operationId: listPost # used
+      
+      responses:
+        "200":
+          description: >
+            success, stream photos updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Stream"
+        
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        
+        "204":
+          description: >
+            empty body, found nothing
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/UnauthorizedToken"
+        "500":
+          $ref: "#/components/responses/ServerError"
+  
+  /users/{uid}/myPhotos/{photoId}/: 
+    summary: photo updated by user
+    description: >
+      this resource rappresent single post of photo
+  
+    parameters:
+      - $ref: "#/components/parameters/Uid"
+      - $ref: "#/components/parameters/PhotoId"
+          
+    delete:
+      tags:
+        - photo
+      summary: delete photo updated
+      description: >
+        provide uid and photoID and delete the photo corresponding to photoID
+    
+      operationId: deletePhoto # required - used
+      security:
+        - BearerAuth: []
+        
+      responses:
+        "204":
+          description: >
+            success, deleted photo
+        
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        
+        "404":
+          description: >
+            Not found, photo or user not found
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/UnauthorizedToken"
+        "500":
+          $ref: "#/components/responses/ServerError"
+  
+  /users/{uid}/myPhotos/{photoId}/likes/:
+    summary: likes on photo
+    description: >
+      This resource describes the likes received for the photo
+    
+    parameters:
+        - $ref: "#/components/parameters/Uid"
+        - $ref: "#/components/parameters/PhotoId"
+    get:
+      security:
+        - BearerAuth: []
+        
+      tags:
+        - photo
+        - like
+      summary: get likes collected by photo
+      description: >
+        provide a photo ID and receive all the likes the photo receives. The elements of the list
+        will be the user ID and username of the user who put as.
+      
+      operationId: getLikes # used
+      
+      responses:
+        "200":
+          description: >
+            success, getted likes
+          content:
+            application/json:
+              schema:
+                description: >
+                  list of users that put like to the  photo
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+                minItems: 1
+                maxItems: 1000
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        
+        "404":
+          description: >
+            Not found, user or photo not found
+        
+        "204":
+          description: >
+            empty body, found nothing
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/UnauthorizedToken"
+        "500":
+          $ref: "#/components/responses/ServerError"
+  
+  /users/{uid}/myPhotos/{photoId}/likes/{likeUserId}:
+    
+    summary: likes on photos
+    description: >
+      this endpoint rappresents likes putted on photo
+    
+    
+    
+    parameters:
+        - $ref: "#/components/parameters/Uid"
+        - $ref: "#/components/parameters/PhotoId"
+        - $ref: "#/components/parameters/likeUserId"
+    
+    
+    get:
+      tags:
+        - photo
+        - like
+      summary: check if user likeUserId has putted like on photo
+      description: >
+        Check if user identified by his uid has putted like on photo.
+        If like has putted will return like otherwire return not found response
+      
+      operationId: checkLike # used
+      
+      security:
+        - BearerAuth: []
+      
+      responses:
+        "200":
+          description: >
+            success, like founded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: >
+            not found, like not found
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/ServerError"
+          
+        
+    
+    put:
+      
+      tags:
+        - photo
+        - like
+      summary: put like a photo
+      description: >
+        provide photo id and owner id. 
+        The like is identified by the *uid* of the user who likes it.
+      
+      operationId: likePhoto # required - used
+      
+      security:
+        - BearerAuth: []
+      responses:
+        "201":  
+          description: >
+            success, like added to the photo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        
+        "204": 
+          description: >
+            not content, just liked this photo
+        
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        
+        "404":
+          description: >
+            Not found, user or photo not found
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/UnauthorizedToken"
+        "500":
+          $ref: "#/components/responses/ServerError"
+      
+    delete:
+      tags:
+        - photo
+        - like
+      summary: remove like a photo
+      description: >
+        provide photo id and owner id
+        and remove like given user identificated by
+        *likeUserId*
+        
+      operationId: unlikePhoto # required - used
+      security:
+        - BearerAuth: []
+      responses:
+        "204":  
+          description: >
+            success, unliked the photo
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          description: >
+            Not found, user or photo not found
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/UnauthorizedToken"
+        "500":
+          $ref: "#/components/responses/ServerError"
+      
+    
+  /users/{uid}/myPhotos/{photoId}/comments/:
+    description: >
+      this endpoint rappresents a set of comments on photo
+    summary: set comments on photo
+    
+    parameters:
+      - $ref: "#/components/parameters/Uid"
+      - $ref: "#/components/parameters/PhotoId"
+    
+    post:
+      tags:
+        - comment
+        - photo
+      summary: add comment a photo
+      description: >
+        give user id and photo id if user is owner of photo add a comment
+        stored in the body of request
+      
+      
+      
+      requestBody:
+        description: > 
+          comment to add
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Comment"
+      
+      security:
+        - BearerAuth: []
+      operationId: commentPhoto # required - used
+      
+      responses:
+        "201":
+          description: >
+            success, new comment added to photo
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/Comment"
+          
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          description: >
+            Not found, photo or user not found
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/UnauthorizedToken"
+        "500":
+          $ref: "#/components/responses/ServerError"
+    
+    get:
+      security:
+        - BearerAuth: []
+        
+      tags:
+        - photo
+        - comment
+      summary: get comments on photo
+      description: >
+        give photo id and user id of owner photo then get all comments on photo
+      
+      parameters:
+        - $ref: "#/components/parameters/QueryLimit"
+        - $ref: "#/components/parameters/UsernameFilter"
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            description: >
+              flag for sorting comments on photo by update data
+            type: string
+            enum: ["data"]
+            default: "data"
+          description: >
+            sort comments by data creation
+        
+      
+      operationId: getComments # used
+      responses:
+        "200":
+          description: >
+            success, get all comments on photo
+          
+          content:
+            application/json:
+              schema:
+                description: >
+                  list of comments on photo
+                type: array
+                items:
+                  $ref: "#/components/schemas/Comment"
+                minItems: 1
+                maxItems: 500
+
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/UserNotFound"
+        "204":
+          description: >
+            empty body, found nothing
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/UnauthorizedToken"
+        "500":
+          $ref: "#/components/responses/ServerError"
+  
+  /users/{uid}/myPhotos/{photoId}/comments/{commentId}:
+    summary: comment on photo
+    description: >
+      this resource rappresent a single comment on photo
+    
+    parameters:
+      - $ref: "#/components/parameters/Uid"
+      - $ref: "#/components/parameters/PhotoId"
+      - $ref: "#/components/parameters/CommentId"
+    delete:
+      tags:
+        - comment
+        - photo
+      summary: delete comment on photo
+      description: >
+        give user id of owner photo, photo id and remove comment on photo identified from comment id given
+      
+      security:
+        - BearerAuth: []
+        
+      operationId: uncommentPhoto # required - used
+      responses:
+        "204":
+          description: >
+            success, deleted comment
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          description: >
+            not found, photo or user not found
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/UnauthorizedToken"
+        "500":
+          $ref: "#/components/responses/ServerError"
+  
+  /session:
+    summary: login action
+    description: >
+      endpoint that allow to perform login actions
+    post:
+      tags: 
+        - login
+      summary: Logs in the user
+      description: >
+        If the user does not exist, it will be created,
+        and an identifier is returned.
+        If the user exists, the user identifier is returned.
+      
+      operationId: doLogin # required - used
+     
+      requestBody:
+        description: >
+          User details
+        content:
+          application/json:
+            schema:
+              description: >
+                username
+              type: object
+              properties:
+                name:
+                  $ref: "#/components/schemas/Username"
+        required: true
+      responses:
+        "200":
+          description: >
+            User just registred, 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Token"
+        "201":
+          description: >
+            User log-in action successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Token"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+          
+        "500":
+          $ref: "#/components/responses/ServerError"
+  
+  /images/{photoId}:
+    description: >
+      Specific endpoint useful to access the photos data stored.
+      Only photos are identificated by id. thanks to the ID it is possible to request 
+      the photo from the system.
+    summary: specific endpoint used for get photo data
+    
+    parameters:
+      - name: photoId
+        schema:
+          description: >
+            identificator at 64-bit
+          type: integer
+          format: int64
+        in: path
+        required: true
+        description: >
+          photo id
+        example: 5
+    
+    get:
+      summary: get the data of photo
+      tags:
+        - photo
+    
+      description: >
+        returns the data of the specific request hole ID of the photo
+      
+      security:
+        - BearerAuth: []
+      operationId: getImage # - used
+      responses:
+        "200":
+          description: "Photo founded, get it"
+          content:
+            image/*:
+              schema:
+                description: >
+                  binary string rappresenting the data of image
+                type: string
+                format: binary
+                minLength: 0
+                maxLength: 5000000
+    
+        "400":
+          description: >
+            Bad request, photo id not valid
+        
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        
+        "403":
+          $ref: "#/components/responses/UnauthorizedToken"
+        
+        
+        "404":
+          description: >
+            Not found, photo not found
+      
+      
+    
+  
+components:
+
+  parameters:
+    
+    QueryLimit:
+      description: >
+        security parameter to limit the number of items in a response and avoid DOS attacks
+      name: limit
+      in: query
+      required: false
+      schema:
+        description: >
+          format limit values
+        type: integer
+        format: int
+        minimum: 1
+        example: 50
+    
+    UsernameFilter:
+      description: >
+        parameter use to filter set of users by his username
+      name: username
+      in: query
+      required: false
+      schema:
+        description: >
+          format username parameter
+        type: string
+        pattern: '^.*?$'
+        minLength: 1
+        maxLength: 16
+        example: "marioross"
+    
+    Uid:
+      name: uid
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/Id"
+      description: >
+        user id
+    
+    PhotoId:
+      name: photoId
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/Id"
+      description: >
+        photo id
+    
+    CommentId:
+      name: commentId
+      in: path
+      required: true
+      description: >
+        comment id
+      schema:
+        $ref: "#/components/schemas/Id"
+    
+    likeUserId:
+      name: likeUserId
+      in: path
+      required: true
+      description: >
+        uid user put like
+      schema:
+        $ref: "#/components/schemas/Id"
+    
+    FollowerId:
+      name: followerId
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/Id"
+      description: >
+        user to unfollow
+    
+    BannedId:
+      name: bannedId
+      in: path
+      required: true
+      description: >
+        uid user to ban
+      schema:
+        $ref: "#/components/schemas/Id"
+    
+  responses:
+    UnauthorizedError:
+      description: >
+        Access token is missing or invalid 
+
+    UnauthorizedToken:
+      description: >
+        the submitted token does not have the necessary permissions to access this resource
+    
+    ServerError:
+      description: >
+        server internal error, for more information see log file
+        
+    BadRequest:
+      description: >
+        Bad request, invalid request format
+    
+    UserNotFound:
+      description: >
+        Not found, user not found
+
+  securitySchemes:
+    
+    BearerAuth:
+      description: >
+        basic safety mechanism based on "bearer" mechanism. APIs that require a minimum level of security can adopt this method
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    
+  schemas:
+    User:
+      description: >
+        this object rappresent a user
+      type: object
+      properties:
+        uid:
+          $ref: "#/components/schemas/Id"
+        username: 
+          $ref: "#/components/schemas/Username"
+      required:
+        - uid
+        - username
+      
+    
+    Username:
+      description: >
+        username of a user
+      type: string
+      pattern: '^.*?$'
+      minLength: 3
+      maxLength: 16
+      example: "marioross"
+    
+    Id:
+      description: >
+        Identificator at 64-bit
+      type: integer
+      format: int64 
+      readOnly: true
+      example: 1
+    
+    Profile:
+      description: >
+        user profile rappresentation
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        stream:
+          $ref: "#/components/schemas/Stream"
+        follower:
+          type: integer
+          minimum: 0
+          description: >
+            number user that follow a specific user
+          example: 12
+        following:
+          type: integer
+          minimum: 0
+          description: >
+            numer of users following by specific user
+          example: 70
+        
+    Post:
+      description: >
+        this object rappresent a post. A post is provided to photo and list of like and comments
+        that recived  
+        
+      type: object
+      properties:
+
+        owner:
+          $ref: "#/components/schemas/Id"
+        refer:
+          $ref: "#/components/schemas/Id"
+        location:
+          $ref: "#/components/schemas/URL"
+        likes:
+          description: >
+            list of users who have liked it
+          type: array
+          items: 
+            $ref: "#/components/schemas/Id"
+          minItems: 0
+          maxItems: 250 # da rivedere
+        
+        comments:
+          description: >
+            list of comments collected by photo
+          type: array
+          items:
+            $ref: "#/components/schemas/Comment"
+          minItems: 0
+          maxItems: 250 # okok
+        
+        timeUpdate:
+          $ref: "#/components/schemas/TimeStamp"
+        
+        descriptionImg:
+          description: >
+            image description
+          type: string
+          example: "a good photo!"
+          minLength: 1
+          maxLength: 250
+          pattern: "^.*?$"
+    
+    URL: 
+      description: >
+        String that uniquely identifies a resource on the network
+      type: string
+      pattern: '^.*?$' # TODO
+      minLength: 1
+      maxLength: 2048
+      example: "http://myExample.com::3030/5"
+
+    Stream:
+      description: >
+        model of stream of photos
+      type: array
+      items:
+        $ref: "#/components/schemas/Post"
+      minItems: 0
+      maxItems: 100
+      
+    
+    TimeStamp:
+      description: >
+        this components describe timestamp value
+        conform to [RFC3339](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6) specification
+      type: string
+      format: data-time
+      pattern: '^[1-9]\d{3}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$'
+      example: "2017-07-21T17:32:28Z"
+      minLength: 20
+      maxLength: 21
+      readOnly: true
+    
+    Token:
+      description: > 
+        Identification token. The token contains only one field with the user's uid
+      type: object
+      properties:
+        value:
+          $ref: "#/components/schemas/Id" # Id of owner
+          
+ 
+    
+    Comment:
+      description: > 
+        this object rappresent a comment on a photo.
+      type: object
+      properties:
+        commentId:
+          $ref: "#/components/schemas/Id"
+        author:
+          $ref: "#/components/schemas/User"
+  
+        text:
+          description: >
+            comment text encoded in UNICODE format
+          type: string
+          minLength: 1
+          maxLength: 250
+          pattern: "^.*$"
+          example: 
+            "😀 i like you photo! 😀"
+        timeStamp:
+          $ref: "#/components/schemas/TimeStamp"
+      required:
+        - author
+        - text
+        - timeStamp
+
+tags:
+  - name: user
+    description: >
+      manage users account and use
+      social functionality
+  - name: photo
+    description: >
+      functionality on photo. Manage photo stream
+      and put comments and like to photo
+  - name: stream
+    description: >
+      Manage streams of photos
+  - name: follower
+    description: >
+      Manage user followers 
+  - name: like
+    description: >
+      Manage likes putted to the photos
+  - name: ban
+    description: >
+      Manage system blocking of users
+  - name: comment
+    description: >
+      Manage comments gived to photos
+  - name: login
+    description: >
+      log-in function for users
+  
