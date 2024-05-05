@@ -5,7 +5,7 @@ ODIR=../obj
 BDIR=../bin
 
 CC=gcc
-CFLAGS=-z execstack -fno-stack-protector
+CFLAGS=-z execstack -O0 -fno-stack-protector 
 
 SRC = $(wildcard *.c)
 OBJ = $(patsubst %.c, $(ODIR)/%.o, $(SRC))
