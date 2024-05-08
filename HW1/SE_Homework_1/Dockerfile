@@ -1,5 +1,5 @@
 # Compile program with old gcc version without security fectures
-FROM gcc:6.2 AS compiler
+FROM docker.io/gcc:6.2 AS compiler
 
 WORKDIR /homework/
 
@@ -11,7 +11,7 @@ RUN make --directory=src
 FROM debian:latest
 
 WORKDIR /homework/
-COPY --from=compiler ./homework/bin .
+COPY --from=compiler ./homework/bin ./homework/data .
 
 # isntall useful tools
 RUN apt update && apt install git python3 -y

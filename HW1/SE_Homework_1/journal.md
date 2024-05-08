@@ -13,8 +13,13 @@
 
 
 3. Verificare l'offset con gdb-patten `pattern offset <pattern>` 
-	valore offset `249`. Il valore di ritorno si trova in posizione 249 dall'inizio dello stack frame. Da 249 in poi si può inserire lo shellcode
+	valore offset `457`. Il valore di ritorno si trova in posizione 249 dall'inizio dello stack frame. Da 457 in poi si può inserire lo shellcode
 
 
 
 
+[](https://www.vividmachines.com/shellcode/shellcode.html#linex3)
+
+nasm -f elf shellex.asm
+ld -o shellex shellex.o
+objdump -d shellex
