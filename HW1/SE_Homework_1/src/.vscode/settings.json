@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "bad.h": "c",
+        "exploit.h": "c",
+        "attack.h": "c"
+    }
+}

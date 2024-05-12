@@ -11,7 +11,7 @@ section .text
       push rax
       xor rdx, rdx
       xor rsi, rsi
-      mov rbx,'/bin/sh'
+      mov rbx,'/bin//sh'
       push rbx
       push rsp
       pop rdi

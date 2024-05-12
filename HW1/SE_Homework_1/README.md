@@ -8,12 +8,12 @@
 
 1. Per analizzare il codice vulnerabile utilizzare gdb-peda
 2. Generare un file di traboccamento con `pattern create <size> <file>` 
-	msf-pattern_create -l 1000 > trash.txt
+	msf-pattern_create -l 250 > pattern.txt
 
 
 
 3. Verificare l'offset con gdb-patten `pattern offset <pattern>` 
-	valore offset `121`. Il valore di ritorno si trova in posizione 121 dall'inizio dello stack frame. Da 121 in poi si può inserire lo shellcode
+	valore offset `152`. Il valore di ritorno si trova in posizione 152 dall'inizio dello stack frame. Da 152 in poi si può inserire lo shellcode
 
 
 
