@@ -10,13 +10,21 @@ RUN make --directory=src
 
 FROM debian:latest
 
-WORKDIR /homework/
-COPY --from=compiler ./homework/bin ./homework/data .
-
 # isntall useful tools
 RUN apt update && apt install git python3 -y
-RUN git clone https://github.com/longld/peda.git ~/peda; echo "source ~/peda/peda.py" >> ~/.gdbinit;  
 RUN apt update && apt install gdb -y
+RUN apt install nano -y
+# create not-root user (threads)
+RUN useradd -ms /bin/bash user_01
+USER user_01
+WORKDIR /home/user_01
+
+RUN git clone https://github.com/longld/peda.git ~/peda; echo "source ~/peda/peda.py" >> ~/.gdbinit;  
+COPY --from=compiler ./homework/bin ./homework/data .
+
+
+
+
 
 
 
