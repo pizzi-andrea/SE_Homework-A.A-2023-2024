@@ -1,26 +1,40 @@
 ## Step 1 .: disabilitare le misure di sicurezza standard
 
-+ `sysctl kernel/randomize_va_space` 
+Disabilitazzione della randomizzazione degli indirizzi (per il sistema host)
+ `sysctl kernel/randomize_va_space` 
 
-## Step 1: Ottenere il valore del registro `RIP` (`EIP` in x32)
+Disabilitare i meccanismi di protezione in fase di compilazione
 
-
-
-1. Per analizzare il codice vulnerabile utilizzare gdb-peda
-2. Generare un file di traboccamento con `pattern create <size> <file>` 
-	msf-pattern_create -l 250 > pattern.txt
+`-z execstack`: permetti l'esecuzione di codice arbitario nello stack
+`-fno-stack-protector`: diabilita i meccanismi di protezione dello stack
 
 
+## Step 2: Calcolare l'offset dello stack (posizione dello stack pointer `RIP`/`EIP` in x32)
 
-3. Verificare l'offset con gdb-patten `pattern offset <pattern>` 
-	valore offset `152`. Il valore di ritorno si trova in posizione 152 dall'inizio dello stack frame. Da 152 in poi si può inserire lo shellcode
+Per l'analisi viene utilizzata un estensione del tradizionale debbuger C gdb con funzionalità avanzate di exploit **gdb-peda**
 
+1. Tramite il comando del debbuger `pattern create` viene generato un file contenente una sequenza di valori generati secondo un pattern
+di dimensione maggiore di quella prevista del buffer
 
+2. Si imposta il debbugger per tracciare l'esecuzione del programma target 
 
-4. Calcolo il numpero di NOP da inserire prima della shell code (offset - dimensione_shell code)
-5. Posizionari prima dello shell code l'indirizzo da inserire nel RIP per eseguire il 'salto' al codice della shellcode
-[](https://www.vividmachines.com/shellcode/shellcode.html#linex3)
+3. Si immette come input al programma infetto il file pattern generato (vedere pattern.txt)
 
-nasm -f elf shellex.asm
-ld -o shellex shellex.o
-objdump -d shellex
+4. Tramite il comando `pattern search` viene estratto offset dello stack pointer (nel caso corrente pari a 152 byte)
+
+## Step 3: Assumere il controllo del RIP 
+
+Per testare il controllo del contenuto del registro RIP sono stati scritti script python *(versione python3)* 
+che generano la stringa da somministrare. 
+
+La prima versione di script python, *rip.py* e' un semplice script che genera partendo dal valore dell'offset
+calcolato al passo precedente una stringa per scrivere all'interno del rip un valore casuale
+(massimo 6 byte per limitazioni sull'indirizzamento effettivo)
+
+## Step 4: Preparare lo shellcode
+
+## Step 5: Preparare la stringa malevola
+
+## Step 6: Passare la stringa in input al programma senza incovenienti di codifica
+
+## Step 7: Lancia una shell con permessi di root
