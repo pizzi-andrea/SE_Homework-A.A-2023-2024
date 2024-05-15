@@ -1,4 +1,4 @@
-MAGIC_N = 151 
+MAGIC_N = 152
 # ricorda 128 - 121 = 7 nop
 if __name__ == '__main__':
     rip_ = 'WAKEUP'

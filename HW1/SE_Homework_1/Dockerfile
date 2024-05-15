@@ -16,11 +16,14 @@ RUN apt update && apt install gdb -y
 RUN apt install nano -y
 # create not-root user (threads)
 RUN useradd -ms /bin/bash user_01
-USER user_01
 WORKDIR /home/user_01
-
-RUN git clone https://github.com/longld/peda.git ~/peda; echo "source ~/peda/peda.py" >> ~/.gdbinit;  
 COPY --from=compiler ./homework/bin ./homework/data .
+RUN chown -hR user_01:user_01 /home/user_01
+
+# switch control to user (not root)
+USER user_01
+RUN git clone https://github.com/longld/peda.git ~/peda; echo "source ~/peda/peda.py" >> ~/.gdbinit;  
+
 
 
 
