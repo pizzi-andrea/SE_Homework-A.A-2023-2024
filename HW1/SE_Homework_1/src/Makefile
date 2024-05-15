@@ -5,7 +5,7 @@ ODIR=../obj
 BDIR=../bin
 
 CC=gcc
-CFLAGS=-z execstack -O0 -fno-stack-protector 
+CFLAGS=-z execstack -O0 -fno-stack-protector -no-pie -z norelro
 
 SRC = $(wildcard *.c)
 OBJ = $(patsubst %.c, $(ODIR)/%.o, $(SRC))
