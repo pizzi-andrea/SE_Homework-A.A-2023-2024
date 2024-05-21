@@ -1,5 +1,12 @@
-# Traccia 1 - Buffer Overflow
+# Relazione Homework
 
+| informazioni generali |                                    |     
+|:---------------------:|------------------------------------|
+|     **_studente_**    | Pizzi Andrea                       |      
+|      **_email_**      | pizzi.199517@studenti.uniroma1.it  |      
+| **_matricola_**       | 1995517                            |
+   
+## Traccia 1 - Buffer Overflow
 Realizzare un attacco di buffer overflow the permetta di aprire una shell su di un sistema target. A tale scopo si richiede sia di realizzare un programma vulnerabile ad un attacco di buffer overflow, sia di progettare e implementare la sequenza di byte che deve essere iniettata nel buffer per realizzare l’attacco. La shell deve essere eseguita con i privilegi del programma vulnerabile che viene sfruttato per il buffer overflow. (Opzionale) migliorare l’attacco provando a far guadagnare alla shell maggiori privilegi rispetto a quelli del programma di cui si è sfrutta la vulnerabilità.
 
 ## Introduzione 
@@ -327,3 +334,18 @@ bash wrap.sh main $shellcode
 ```
 
 3. Viene aperta una nuova shell con i permessi di setuid previsti (il file appartiene al root quindi il programma verrà eseguito con privileggi di root).
+
+
+## Risultati sperimentali: esempio di attacco
+
+![esempio](./esempio.png)
+**notare che nell'esempio mostrato non viene mai chiesto all'utente di inserire una password neanche per lanciare una shell come root. Notare anche che l'utente user_01 non potrebbe neanche diventare root non essendo un utente sudoers**
+
+
+Lo screenshoot mostra come dovrebbe apparire l'attacco. Le conseguenze dell'apertura di una shell come root sono sono abbastanza gravi permettendo all'attaccante di 
+
+- prendere il controllo del sistema modificando le password degli utenti root o rimuovendoli
+- Accedere deliberatamente a tutti i file del sistema (sia in lettura che scrittura)
+- Installare malware come backdoor, keylogger etc... per continuare l'attività in incognito
+
+Nell'immagine presentata vediamo come si potrebbe realizzare l'attacco presentato al punto due della lista accedendo al file *shadow*. 

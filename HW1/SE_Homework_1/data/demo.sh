@@ -10,9 +10,9 @@ echo " Il file main sarà la scorciatoglia... è possibile sfruttare un overflow
 
 stat main
 
-echo " E' possibile usare l'attacco progettato per aprire una shell con privileggi di root 
+echo " E' possibile usare l'attacco progettato per aprire una shell con privileggi di root "
 
-python3 inject.py
+python3 inject_shell.py
 bash load.sh 
 
 
