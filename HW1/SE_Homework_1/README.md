@@ -7,6 +7,15 @@
 | **_matricola_**       | 1995517                            |
    
 ## Traccia 1 - Buffer Overflow
+# Relazione Homework
+
+| informazioni generali |                                    |     
+|:---------------------:|------------------------------------|
+|     **_studente_**    | Pizzi Andrea                       |      
+|      **_email_**      | pizzi.199517@studenti.uniroma1.it  |      
+| **_matricola_**       | 1995517                            |
+   
+## Traccia 1 - Buffer Overflow
 Realizzare un attacco di buffer overflow the permetta di aprire una shell su di un sistema target. A tale scopo si richiede sia di realizzare un programma vulnerabile ad un attacco di buffer overflow, sia di progettare e implementare la sequenza di byte che deve essere iniettata nel buffer per realizzare l’attacco. La shell deve essere eseguita con i privilegi del programma vulnerabile che viene sfruttato per il buffer overflow. (Opzionale) migliorare l’attacco provando a far guadagnare alla shell maggiori privilegi rispetto a quelli del programma di cui si è sfrutta la vulnerabilità.
 
 ## Introduzione 
