@@ -54,7 +54,7 @@ Disabilittare la randomizzazione degli indirizzi (per il sistema host)
 Disabilitare i meccanismi di protezione in fase di compilazione
 
 * `-z execstack`: permetti l'esecuzione di codice arbitario nello stack
-* `-fno-stack-protector`: diabilita i meccanismi di protezione dello stack
+* `-fno-stack-protector`: disabilita i meccanismi di protezione dello stack
 
 Il programma C esempio sarà una funzione in grado di leggere sa stdin una stringa, bufferizzarla e successivamente scriverla su un file. 
 
@@ -348,7 +348,7 @@ bash wrap.sh main $shellcode
 ## Risultati sperimentali: esempio di attacco
 
 ![esempio](./esempio.png)
-**notare che nell'esempio mostrato non viene mai chiesto all'utente di inserire una password neanche per lanciare una shell come root. Notare anche che l'utente user_01 non potrebbe neanche diventare root non essendo un utente sudoers**
+**notare che nell'esempio mostrato non viene mai chiesto all'utente di inserire una password neanche per lanciare una shell come root. Notare inoltre che  l'utente user_01 non potrebbe neanche diventare root non essendo un utente sudoers**
 
 
 Lo screenshoot mostra come dovrebbe apparire l'attacco. Le conseguenze dell'apertura di una shell come root sono sono abbastanza gravi permettendo all'attaccante di 
@@ -358,3 +358,5 @@ Lo screenshoot mostra come dovrebbe apparire l'attacco. Le conseguenze dell'aper
 - Installare malware come backdoor, keylogger etc... per continuare l'attività in incognito
 
 Nell'immagine presentata vediamo come si potrebbe realizzare l'attacco presentato al punto due della lista accedendo al file *shadow*. 
+
+L'attacco come descritto si configura come intrusione o accesso non autorizzato al sistema. Una possibile ulteriore linea di difesa successiva all'intrusione potrebbe essere un HIDS (Host-based intrusion detection system) in grado di rilevare l'intrusione in base al comportamento anomalo del programma.
